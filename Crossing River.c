@@ -5,7 +5,11 @@ typedef struct Status {
     int *Info;
     int **Adj;
     int NodeNum;
+    int *Vis;
 } Status, *SGraph;
+
+int Stack[100];
+int top = -1;
 
 int CheckStatus(int S) {
     //判断状态S是否合法
@@ -60,6 +64,35 @@ SGraph CreateStatus() {
             } //if
         } //for
     } //for
+    SG->Vis = (int*)malloc(sizeof(int) * 16);
+    for (i = 0; i < 16; i++) SG->Vis[SG->Info[i]] = 0; //全记为未访问
 
     return SG;
 } //CreateGraph
+
+void DFSFindWay(int S, int E, SGraph SG) {
+    //使用DFS寻找状态图SG中从起点S到终点E的所有路径并输出
+    int pos;
+    int i;
+
+    if (S == E) { //已经抵达终点
+        PrintWay();
+
+        return ;
+    } //if
+    Stack[++top] = S;
+    SG->Vis[S] = 1;
+    for (i = 0; i < SG->NodeNum; i++) { //找到起点对应的下标
+        if (SG->Info[i] == S) { //起点对应
+            pos = i;
+            break;
+        } //if
+    } //for
+    for (i = 0; i < SG->NodeNum; i++) { //遍历所有节点
+        if (SG->Adj[pos][i] && !SG->Vis[SG->Info[i]]) { //未访问的邻接节点
+            DFSFindWay(SG->Info[i], E, SG);
+        } //if
+    } //for
+    top--;
+    SG->Vis[S] = 0;
+} //DFSFindWay
